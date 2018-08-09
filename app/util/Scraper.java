@@ -78,9 +78,10 @@ public class Scraper {
 
         }catch(Exception e){
             e.printStackTrace();
+            return ERROR;
         }
 
-        return "";
+        return ERROR;
     }
 
     /**
@@ -145,7 +146,7 @@ public class Scraper {
     /**
      *
      * @param html
-     * @return
+     * @return Json containing the Open Graph elements
      */
 
     private static JSONObject FillTags(String html){
@@ -167,6 +168,8 @@ public class Scraper {
             try{
                 String property = meta.attr("property");
                 if(property.contains("og:image")){
+
+                    //Each time we get a new image element we push the one we already found
                     if(property.split(":").length == 2 && image.size()>0){
                         images.put(buildImage(image));
                         image = new HashMap<>();
@@ -214,6 +217,8 @@ public class Scraper {
             }
 
         }
+
+        //Since we push elements only when we get a new one, the last one needs to be pushed separately at the end
         if(image.size()>0)
             images.put(buildImage(image));
         if(video.size()>0)
