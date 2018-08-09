@@ -29,6 +29,6 @@ public class ScraperController extends Controller {
             String json = Scraper.buildJson(url);
             return ok(json);
         }
-        return notFound("<h1>ID not found</h1>").as("text/html");
+        return notFound("ID not found").as("text/html");
     }
 }

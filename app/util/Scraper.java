@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Date;
 import java.util.HashMap;
 
 
@@ -54,16 +56,16 @@ public class Scraper {
         }catch(Exception e){
             e.printStackTrace();
         }
-
     }
 
     public static String buildJson(String url){
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonParser parser = new JsonParser();
+        long id = generateUniqId(url);
+
         try{
             String html = Scraper.getHtmlHead(url);
-
-            long id = generateUniqId(url);
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            JsonParser parser = new JsonParser();
 
             if( html != null){
                 JSONObject data = Scraper.FillTags(html);
@@ -78,7 +80,26 @@ public class Scraper {
 
         }catch(Exception e){
             e.printStackTrace();
-            return ERROR;
+            return(buildErrorJson(url, id));
+        }
+        return(buildErrorJson(url, id));
+    }
+
+    private static String buildErrorJson(String url, long id){
+
+        JSONObject data = new JSONObject();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonParser parser = new JsonParser();
+
+        try {
+            data.put(URL, url);
+            data.put(ID, id);
+            data.put(SCRAPE_STATUS, ERROR);
+            JsonObject json = parser.parse(data.toString()).getAsJsonObject();
+            return gson.toJson(json);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
         return ERROR;
@@ -111,34 +132,34 @@ public class Scraper {
             }
 
             String headContentsStr = headContents.toString();
-//            String t ="<head prefix=\"og: http://ogp.me/ns#\">\n" +
-//                    "    <meta charset=\"utf-8\">\n" +
-//                    "    <title>The Open Graph protocol</title>\n" +
-//                    "    <meta name=\"description\" content=\"The Open Graph protocol enables any web page to become a rich object in a social graph.\">\n" +
-//                    "    <script type=\"text/javascript\">var _sf_startpt=(new Date()).getTime()</script>\n" +
-//                    "    <link rel=\"stylesheet\" href=\"base.css\" type=\"text/css\">\n" +
-//                    "    <meta property=\"og:title\" content=\"Open Graph protocol\">\n" +
-//                    "    <meta property=\"og:type\" content=\"website\">\n" +
-//                    "    <meta property=\"og:url\" content=\"http://ogp.me/\">\n" +
-//                    "    <meta property=\"og:image\" content=\"http://ogp.me/logo.png\">\n" +
-//                    "    <meta property=\"og:image:type\" content=\"image/png\">\n" +
-//                    "    <meta property=\"og:image:width\" content=\"300\">\n" +
-//                    "    <meta property=\"og:image:height\" content=\"300\">\n" +
-//                    "    <meta property=\"og:image:alt\" content=\"The Open Graph logo\">\n" +
-//                    "    <meta property=\"og:image\" content=\"http://ogp.me/logo1.png\">\n" +
-//                    "    <meta property=\"og:image:type\" content=\"image/png\">\n" +
-//                    "    <meta property=\"og:image:width\" content=“200\">\n" +
-//                    "    <meta property=\"og:image:height\" content=“200\">\n" +
-//                    "\n" +
-//                    "    <meta property=\"og:description\" content=\"The Open Graph protocol enables any web page to become a rich object in a social graph.\">\n" +
-//                    "    <meta prefix=\"fb: http://ogp.me/ns/fb#\" property=\"fb:app_id\" content=\"115190258555800\">\n" +
-//                    "    <link rel=\"alternate\" type=\"application/rdf+xml\" href=\"http://ogp.me/ns/ogp.me.rdf\">\n" +
-//                    "    <link rel=\"alternate\" type=\"text/turtle\" href=\"http://ogp.me/ns/ogp.me.ttl\">\n" +
-//                    "  </head><body></body></html>";
-            return headContentsStr;
+            String t ="<head prefix=\"og: http://ogp.me/ns#\">\n" +
+                    "    <meta charset=\"utf-8\">\n" +
+                    "    <title>The Open Graph protocol</title>\n" +
+                    "    <meta name=\"description\" content=\"The Open Graph protocol enables any web page to become a rich object in a social graph.\">\n" +
+                    "    <script type=\"text/javascript\">var _sf_startpt=(new Date()).getTime()</script>\n" +
+                    "    <link rel=\"stylesheet\" href=\"base.css\" type=\"text/css\">\n" +
+                    "    <meta property=\"og:title\" content=\"Open Graph protocol\">\n" +
+                    "    <meta property=\"og:updated_time\" content=\"1533732907\">\n" +
+                    "    <meta property=\"og:type\" content=\"website\">\n" +
+                    "    <meta property=\"og:url\" content=\"http://ogp.me/\">\n" +
+                    "    <meta property=\"og:image\" content=\"http://ogp.me/logo.png\">\n" +
+                    "    <meta property=\"og:image:type\" content=\"image/png\">\n" +
+                    "    <meta property=\"og:image:width\" content=\"300\">\n" +
+                    "    <meta property=\"og:image:height\" content=\"300\">\n" +
+                    "    <meta property=\"og:image:alt\" content=\"The Open Graph logo\">\n" +
+                    "    <meta property=\"og:image\" content=\"http://ogp.me/logo1.png\">\n" +
+                    "    <meta property=\"og:image:type\" content=\"image/png\">\n" +
+                    "    <meta property=\"og:image:width\" content=“200\">\n" +
+                    "    <meta property=\"og:image:height\" content=“200\">\n" +
+                    "\n" +
+                    "    <meta property=\"og:description\" content=\"The Open Graph protocol enables any web page to become a rich object in a social graph.\">\n" +
+                    "    <meta prefix=\"fb: http://ogp.me/ns/fb#\" property=\"fb:app_id\" content=\"115190258555800\">\n" +
+                    "    <link rel=\"alternate\" type=\"application/rdf+xml\" href=\"http://ogp.me/ns/ogp.me.rdf\">\n" +
+                    "    <link rel=\"alternate\" type=\"text/turtle\" href=\"http://ogp.me/ns/ogp.me.ttl\">\n" +
+                    "  </head><body></body></html>";
+            return t;
 
         }catch(Exception e){
-
             return null;
         }
     }
@@ -180,7 +201,7 @@ public class Scraper {
                     }
                 }
 
-                if(property.contains("og:video")){
+                else if(property.contains("og:video")){
                     if(property.split(":").length == 2 && video.size()>0){
                         videos.put(buildVideo(video));
                         video = new HashMap<>();
@@ -191,7 +212,7 @@ public class Scraper {
                     }
                 }
 
-                if(property.contains("og:audio")){
+                else if(property.contains("og:audio")){
                     if(property.split(":").length == 2 && audio.size()>0){
                         audios.put(buildVideo(video));
                         audio = new HashMap<>();
@@ -202,10 +223,16 @@ public class Scraper {
                     }
                 }
 
-                if(property.contains("og:locale:alternate")){
+                else if(property.contains("og:locale:alternate")){
                     JSONObject locale = new JSONObject();
                     locale.put(property, meta.attr(CONTENT));
                     localeAlternates.put(locale);
+                }
+
+                else if(property.contains("og:updated_time")){
+                    long longTime = Long.parseLong(meta.attr(CONTENT));
+                    Date date = new Date(longTime);
+                    ogData.put(property.split(":")[1], date);
 
                 }
 
