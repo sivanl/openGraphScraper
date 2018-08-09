@@ -1,0 +1,5 @@
+2018-08-09 11:26:47,547 [INFO] from application in ForkJoinPool-1-worker-1 - Creating Pool for datasource 'default'
+2018-08-09 11:26:47,732 [INFO] from play.api.db.HikariCPConnectionPool in ForkJoinPool-1-worker-1 - datasource [default] bound to JNDI as DefaultDS
+2018-08-09 11:26:47,746 [INFO] from play.api.db.DefaultDBApi in ForkJoinPool-1-worker-1 - Database [default] connected at jdbc:h2:mem:play
+2018-08-09 11:26:48,064 [INFO] from akka.event.slf4j.Slf4jLogger in application-akka.actor.default-dispatcher-4 - Slf4jLogger started
+2018-08-09 11:26:48,082 [INFO] from play.api.Play in ForkJoinPool-1-worker-1 - Application started (Dev)

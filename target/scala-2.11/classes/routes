@@ -1,0 +1,3 @@
+GET     /stories/:id                         controllers.ScraperController.buildJson(id:Long)
+POST    /stories                               controllers.ScraperController.generateId()
+

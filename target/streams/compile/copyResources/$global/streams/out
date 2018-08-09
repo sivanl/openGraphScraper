@@ -1,0 +1,7 @@
+[0m[[0mdebug[0m] [0mCopy resource mappings: [0m
+[0m[[0mdebug[0m] [0m	(/Users/sivanlauf/OpenGraphScraper/conf/logback.xml,/Users/sivanlauf/OpenGraphScraper/target/scala-2.11/classes/logback.xml)[0m
+[0m[[0mdebug[0m] [0m	(/Users/sivanlauf/OpenGraphScraper/conf/META-INF,/Users/sivanlauf/OpenGraphScraper/target/scala-2.11/classes/META-INF)[0m
+[0m[[0mdebug[0m] [0m	(/Users/sivanlauf/OpenGraphScraper/conf/posts.routes,/Users/sivanlauf/OpenGraphScraper/target/scala-2.11/classes/posts.routes)[0m
+[0m[[0mdebug[0m] [0m	(/Users/sivanlauf/OpenGraphScraper/conf/application.conf,/Users/sivanlauf/OpenGraphScraper/target/scala-2.11/classes/application.conf)[0m
+[0m[[0mdebug[0m] [0m	(/Users/sivanlauf/OpenGraphScraper/conf/routes,/Users/sivanlauf/OpenGraphScraper/target/scala-2.11/classes/routes)[0m
+[0m[[0mdebug[0m] [0m	(/Users/sivanlauf/OpenGraphScraper/conf/META-INF/persistence.xml,/Users/sivanlauf/OpenGraphScraper/target/scala-2.11/classes/META-INF/persistence.xml)[0m
