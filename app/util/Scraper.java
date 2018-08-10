@@ -12,12 +12,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 
 
 /**
@@ -32,31 +32,32 @@ public class Scraper {
     private final static String DONE = "done";
     private final static String ERROR = "error";
 
+    private final static List<String> types = new ArrayList<>(Arrays.asList("article", "book", "profile"));
+    private final static Map<String, List<String>> complexTypes = new HashMap<>();
+
     public static void main(String[] args) {
-        try{
-//            Scraper scrap = new Scraper();
-
-            String url = "http://ogp.me/";
-            String html = Scraper.getHtmlHead(url);
-
-            long id = generateUniqId(url);
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            JsonParser parser = new JsonParser();
-
-            if( html != null){
-                JSONObject data = Scraper.FillTags(html);
-                data.put(URL, url);
-                data.put(ID, id);
-                data.put(SCRAPE_STATUS, DONE);
-                JsonObject json = parser.parse(data.toString()).getAsJsonObject();
-
-                System.out.println(gson.toJson(json));
-            }
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+        System.out.println(buildJson("https://www.optimizesmart.com/how-to-use-open-graph-protocol/"));
     }
+
+    static{
+        initCoplexTypes();
+    }
+
+    private static void initCoplexTypes(){
+        List<String> properties;
+        properties = Arrays.asList("music:duration", "music:album", "music:album:disc", "music:album:track", "music:musician");
+        complexTypes.put("music.song", properties);
+        properties = Arrays.asList("music:song", "music:song:disc", "music:song:track", "music:musician", "music:release_date");
+        complexTypes.put("music.album", properties);
+        properties = Arrays.asList("music:song", "music:song:disc", "music:song:track", "music:creator");
+        complexTypes.put("music.playlist", properties);
+        properties = Arrays.asList("music:song", "music:song:disc", "music:song:track", "music:creator");
+        complexTypes.put("music.playlist", properties);
+        properties = Arrays.asList("music:creator");
+        complexTypes.put("music.radio_station", properties);
+    }
+
+
 
     public static String buildJson(String url){
 
@@ -66,7 +67,6 @@ public class Scraper {
 
         try{
             String html = Scraper.getHtmlHead(url);
-
             if( html != null){
                 JSONObject data = Scraper.FillTags(html);
                 data.put(URL, url);
@@ -74,7 +74,6 @@ public class Scraper {
                 data.put(SCRAPE_STATUS, DONE);
                 JsonObject json = parser.parse(data.toString()).getAsJsonObject();
 
-                System.out.println(gson.toJson(json));
                 return gson.toJson(json);
             }
 
@@ -112,12 +111,25 @@ public class Scraper {
      */
     private static String getHtmlHead(String url){
         try{
-
-            URL pageURL = new URL(url);
-            URLConnection siteConnection = pageURL.openConnection();
-            BufferedReader dis = new BufferedReader(new InputStreamReader(siteConnection.getInputStream()));
             String inputLine;
-            StringBuffer headContents = new StringBuffer();
+            BufferedReader dis;
+            StringBuffer headContents;
+            URL pageURL = new URL(url);
+
+            //Creating connection to a website WITH SSL certificate
+            if(url.startsWith("https")){
+                HttpsURLConnection siteConnection = (HttpsURLConnection)pageURL.openConnection();
+                siteConnection.addRequestProperty("User-Agent", "Mozilla/4.76");
+                dis = new BufferedReader(new InputStreamReader(siteConnection.getInputStream()));
+                headContents = new StringBuffer();
+            }
+            //Creating connection to a website WITHOUT SSL certificate
+            else{
+                URLConnection siteConnection = pageURL.openConnection();
+                siteConnection.addRequestProperty("User-Agent", "Mozilla/4.76");
+                dis = new BufferedReader(new InputStreamReader(siteConnection.getInputStream()));
+                headContents = new StringBuffer();
+            }
 
             while ((inputLine = dis.readLine()) != null){
 
@@ -132,34 +144,10 @@ public class Scraper {
             }
 
             String headContentsStr = headContents.toString();
-            String t ="<head prefix=\"og: http://ogp.me/ns#\">\n" +
-                    "    <meta charset=\"utf-8\">\n" +
-                    "    <title>The Open Graph protocol</title>\n" +
-                    "    <meta name=\"description\" content=\"The Open Graph protocol enables any web page to become a rich object in a social graph.\">\n" +
-                    "    <script type=\"text/javascript\">var _sf_startpt=(new Date()).getTime()</script>\n" +
-                    "    <link rel=\"stylesheet\" href=\"base.css\" type=\"text/css\">\n" +
-                    "    <meta property=\"og:title\" content=\"Open Graph protocol\">\n" +
-                    "    <meta property=\"og:updated_time\" content=\"1533732907\">\n" +
-                    "    <meta property=\"og:type\" content=\"website\">\n" +
-                    "    <meta property=\"og:url\" content=\"http://ogp.me/\">\n" +
-                    "    <meta property=\"og:image\" content=\"http://ogp.me/logo.png\">\n" +
-                    "    <meta property=\"og:image:type\" content=\"image/png\">\n" +
-                    "    <meta property=\"og:image:width\" content=\"300\">\n" +
-                    "    <meta property=\"og:image:height\" content=\"300\">\n" +
-                    "    <meta property=\"og:image:alt\" content=\"The Open Graph logo\">\n" +
-                    "    <meta property=\"og:image\" content=\"http://ogp.me/logo1.png\">\n" +
-                    "    <meta property=\"og:image:type\" content=\"image/png\">\n" +
-                    "    <meta property=\"og:image:width\" content=“200\">\n" +
-                    "    <meta property=\"og:image:height\" content=“200\">\n" +
-                    "\n" +
-                    "    <meta property=\"og:description\" content=\"The Open Graph protocol enables any web page to become a rich object in a social graph.\">\n" +
-                    "    <meta prefix=\"fb: http://ogp.me/ns/fb#\" property=\"fb:app_id\" content=\"115190258555800\">\n" +
-                    "    <link rel=\"alternate\" type=\"application/rdf+xml\" href=\"http://ogp.me/ns/ogp.me.rdf\">\n" +
-                    "    <link rel=\"alternate\" type=\"text/turtle\" href=\"http://ogp.me/ns/ogp.me.ttl\">\n" +
-                    "  </head><body></body></html>";
-            return t;
+            return headContentsStr;
 
         }catch(Exception e){
+            e.printStackTrace();
             return null;
         }
     }
@@ -171,6 +159,7 @@ public class Scraper {
      */
 
     private static JSONObject FillTags(String html){
+        String type = "";
 
         HashMap<String,String> image = new HashMap<>();
         HashMap<String,String> video = new HashMap<>();
@@ -179,6 +168,7 @@ public class Scraper {
         JSONArray images = new JSONArray();
         JSONArray videos = new JSONArray();
         JSONArray audios = new JSONArray();
+        JSONObject differentTypes = new JSONObject();
         JSONArray localeAlternates = new JSONArray();
 
         JSONObject ogData = new JSONObject();
@@ -229,14 +219,29 @@ public class Scraper {
                     localeAlternates.put(locale);
                 }
 
-                else if(property.contains("og:updated_time")){
-                    long longTime = Long.parseLong(meta.attr(CONTENT));
-                    Date date = new Date(longTime);
-                    ogData.put(property.split(":")[1], date);
+                else if(property.contains("og:") && (property.contains("time") || property.contains("date"))){
+                    String time = meta.attr(CONTENT);
+                    if(isNumeric(time)){
+                        long longTime = Long.parseLong(time);
+                        Date date = new Date(longTime);
+                        ogData.put(property.split(":")[1], date);
+                    }
+                    else{
+                        ogData.put(property.split(":")[1], time);
+                    }
+                }
 
+                else if(types.contains(property.split(":")[0])){
+                    differentTypes.put(property.split(":")[1], meta.attr(CONTENT));
+                }
+
+                else if(complexTypes.keySet().contains(property)){
+                    differentTypes.put(property.split(":")[1], meta.attr(CONTENT));
                 }
 
                 else if(property.contains("og:")){
+                    if(property.contains("type"))
+                        type = meta.attr(CONTENT);
                     ogData.put(property.split(":")[1], meta.attr(CONTENT));
                 }
             }catch(Exception e){
@@ -246,12 +251,13 @@ public class Scraper {
         }
 
         //Since we push elements only when we get a new one, the last one needs to be pushed separately at the end
-        if(image.size()>0)
+        if(image.size() > 0)
             images.put(buildImage(image));
-        if(video.size()>0)
+        if(video.size() > 0)
             videos.put(buildVideo(video));
-        if(audio.size()>0)
+        if(audio.size() > 0)
             audios.put(buildAudio(audio));
+
 
         try{
             if(images.length() > 0)
@@ -262,6 +268,11 @@ public class Scraper {
                 ogData.put("audio", audios);
             if(localeAlternates.length() > 0)
                 ogData.put("localeAlternate", localeAlternates);
+            if(types.contains(type))
+                ogData.put(type, differentTypes);
+            if(complexTypes.containsKey(type))
+                ogData.put(type, differentTypes);
+
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -327,8 +338,6 @@ public class Scraper {
         return obj;
     }
 
-
-
     /**
      *
      * @param url
@@ -343,5 +352,14 @@ public class Scraper {
 
         return hash;
 
+    }
+
+    private static boolean isNumeric(String strNum) {
+        try {
+            long d = Long.parseLong(strNum);
+        } catch (NumberFormatException | NullPointerException nfe) {
+            return false;
+        }
+        return true;
     }
 }
