@@ -37,6 +37,7 @@ public class Scraper {
 
     public static void main(String[] args) {
         System.out.println(buildJson("https://www.optimizesmart.com/how-to-use-open-graph-protocol/"));
+        System.out.println(buildJson("https://www.ynet.co.il/articles/0,7340,L-5325758,00.html"));
     }
 
     static{
@@ -268,10 +269,10 @@ public class Scraper {
                 ogData.put("audio", audios);
             if(localeAlternates.length() > 0)
                 ogData.put("localeAlternate", localeAlternates);
-            if(types.contains(type))
+            if(types.contains(type) && differentTypes.length() > 0)
                 ogData.put(type, differentTypes);
-            if(complexTypes.containsKey(type))
-                ogData.put(type, differentTypes);
+            if(complexTypes.containsKey(type) && differentTypes.length() > 0)
+                ogData.put(type, differentTypes );
 
         }catch(Exception e){
             e.printStackTrace();
