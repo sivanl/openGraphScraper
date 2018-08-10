@@ -1,4 +1,4 @@
-name := """play-java-rest-api-example"""
+name := """Open-Graph-Scraper"""
 
 version := "1.0-SNAPSHOT"
 
